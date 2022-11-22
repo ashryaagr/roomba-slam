@@ -104,7 +104,7 @@ def getCurrentPos(l, current_state):
         if l.frameExists(camera_name):
             # TODO: Possible issue: the above "if" statement will be true for all
             try:
-                #print(i)
+                print(i)
                 # if i in [9]:
                 #     continue
 
@@ -117,8 +117,9 @@ def getCurrentPos(l, current_state):
                     time.sleep(0.005)
                     (trans, rot) = l.lookupTransform(camera_name, "marker_"+str(i), rospy.Time(0))# april tag returns april tag's position wr.t. robot
 
+                    print(trans, rot)
 
-                    trans_rots = [l.lookupTransform("map", "marker_"+str(i)+ "_" + str(j), now) for j in range(1,6)]
+                    #print(trans_rots)
                     dists = [distance(x[0],current_state,trans) for x in trans_rots]
                     dist_arg_min = np.argmin(dists)
 
@@ -137,7 +138,7 @@ def getCurrentPos(l, current_state):
                     #     trans, rot = trans2, rot2
                     #     print("Using 2nd marker")
 
-                    print("Using " + str(dist_arg_min+1) +  "marker")
+                    print("Using 9_" + str(dist_arg_min+1) +  "marker")
                     trans,rot = trans_rots[dist_arg_min]
 
                     #trans, rot = trans1, rot1
@@ -145,12 +146,12 @@ def getCurrentPos(l, current_state):
                     br.sendTransform(trans, rot, rospy.Time.now(), "marker_"+str(i), "map")
                     ## TODO: Possible issue: that we are looking up for transform right after sending it
                     
-                    now = rospy.Time()
+                    # now = rospy.Time()
                     # wait for the transform ready from the map to the camera for 1 second.
                     
                     #l.waitForTransform("map", camera_name, now, rospy.Duration(1.0))
                     # extract the transform camera pose in the map coordinate.
-                    time.sleep(0.005)
+                    time.sleep(0.01)
                     (trans, rot) = l.lookupTransform("map", camera_name, rospy.Time(0))
                 else:
                     now = rospy.Time()
@@ -159,7 +160,7 @@ def getCurrentPos(l, current_state):
                     #l.waitForTransform("map", camera_name, now, rospy.Duration(1.0))
                     # extract the transform camera pose in the map coordinate.
                     time.sleep(0.005)
-                    (trans, rot) = l.lookupTransform("map", camera_name, rospy.Time(0))# april tag returns april tag's position wr.t. robot
+                    (trans, rot) = l.lookupTransform("map", camera_name, now)# april tag returns april tag's position wr.t. robot
                     #print(trans)
                 # convert the rotate matrix to theta angle in 2d
                 matrix = quaternion_matrix(rot)
@@ -170,8 +171,8 @@ def getCurrentPos(l, current_state):
                 foundSolution = True
                 print("April tag tells: ", result)
                 break
-            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException, tf2_ros.TransformException):
-                print("meet error")
+            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException, tf2_ros.TransformException) as e:
+                print("meet error: ", e)
     #listener.clear()
     return foundSolution, result
 
@@ -212,7 +213,12 @@ if __name__ == "__main__":
 
     listener = tf.TransformListener(False, rospy.Time(0.5))
 
-    obstacles = []#ObstaclePolygon([], [])]
+    time.sleep(20)
+    now = rospy.Time()
+    trans_rots = [listener.lookupTransform("map", "marker_9_" + str(j), now) for j in range(1,6)]
+
+
+    obstacles = [] #ObstaclePolygon([], [])]
 
     #minTime = VisibilityRoadMap()
     #maxSafety = VoronoiRoadMapPlanner()
@@ -271,7 +277,7 @@ if __name__ == "__main__":
 
         writeLines.append(",".join(map(str, current_state))+"\n")
 
-        while(np.linalg.norm(pid.getError(current_state, wp)) > 0.1): # check the error between current state and current way point
+        while(np.linalg.norm(pid.getError(current_state, wp)) > 0.15): # check the error between current state and current way point
             # calculate the current twist
             update_value = pid.update(current_state)
             # publish the twist
