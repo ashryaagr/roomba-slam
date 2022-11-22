@@ -1,0 +1,5 @@
+*.pyc
+build/*
+outputs/
+old_outputs/
+.DS_STORE

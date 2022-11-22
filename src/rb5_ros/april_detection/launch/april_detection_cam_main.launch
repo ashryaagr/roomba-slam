@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find rb5_vision)/launch/rb_camera_main_ocv.launch" />
+  <node pkg="april_detection" type="april_detection_node" name="april_detection_node" output="screen" />
+  <!-- <node pkg="tf" type="static_transform_publisher" name="camera_to_robot" args="0 0 0 1.57 -1.57 0 camera_8 robot_8 100" /> -->
+</launch>

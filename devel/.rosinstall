@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /root/rosws/devel/setup.sh

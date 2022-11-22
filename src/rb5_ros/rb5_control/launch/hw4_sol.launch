@@ -1,0 +1,34 @@
+<launch>
+  <!-- <include file="$(find rb5_control)/launch/mbot_bringup.launch" /> -->
+  <!-- <include file="$(find april_detection)/launch/april_detection_cam_main.launch" /> -->
+  <node pkg="rb5_control" type="hw4_solution.py" name="hw4_sol_node" output="screen" /> 
+
+  <!-- <node pkg="tf" type="static_transform_publisher" name="marker0_trans" args="1.5 0 0 0.5 -0.5 0.5 -0.5 map marker_0 100" /> -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="marker8_1_trans" args="1.5 0 0 -1.57 0 -1.57 map marker_8_1 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker8_2_trans" args="1.5 1.38 0 1.57 0 -1.57 map marker_8_2 100" /> -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="marker8_1_trans" args="1.84 0 0 -1.57 0 -1.57 map marker_5 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker8_2_trans" args="-0.2 1.5 0 1.57 0 -1.57 map marker_9 100" /> -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="marker8_2_trans" args="0 1 0 0 0 1 0 map marker_9_2 100" /> -->
+
+  <!-- <node pkg="tf" type="static_transform_publisher" name="marker8_1_trans" args="1.84 0 0 -1.57 0 -1.57 map marker_5 100" /> -->
+
+
+
+
+  <node pkg="tf" type="static_transform_publisher" name="marker_8" args="0.0 -0.15 0 3.14 0 -1.57 map marker_8 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_5" args="-0.15 0 0 1.57 0 -1.57 map marker_5 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_2" args="-0.15 2.5 0 1.57 0 -1.57 map marker_2 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_9" args=" 0 2.65 0 0 0 -1.57 map marker_9 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_1" args="2.5 2.65 0 0 0 -1.57 map marker_1 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_4" args="2.65 2.5 0 -1.57 0 -1.57 map marker_4 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_0" args="2.65 0 0 -1.57 0 -1.57 map marker_0 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_7" args="2.5 -0.15 0 3.14 0 -1.57 map marker_7 100" />
+
+  <!-- <node pkg="tf" type="static_transform_publisher" name="marker_2_2" args="1.13 1.225 0 -1.57 0 -1.57 map marker_2_2 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_1_2" args="1.22 1.36 0 3.14 0 -1.57 map marker_1_2 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_0_2" args="1.43 1.18 0 1.57 0 -1.57 map marker_0_2 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_3" args="1.28 1.04 0 0 0 -1.57 map marker_3 100" /> -->
+
+
+
+</launch>
