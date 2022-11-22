@@ -232,10 +232,27 @@ if __name__ == "__main__":
     #                  [1.0,1.0,np.pi],
     #                  [0.0,1.0,-np.pi/2], 
 
+    waypoint_maxSafety = np.array(
+        [[0, 0],
+        [ 0.25      ,  0.25      ],
+        [ 0.75      ,  0.44017165],
+        [ 0.53557388,  0.53557388],
+        [ 0.75      ,  0.44017165],
+        [ 1.1355    ,  0.43325833],
+        [ 1.25      ,  0.40881341],
+        [ 1.75      ,  0.51555978],
+        [ 1.89290968,  0.60709032],
+        [ 1.9460925 ,  0.75      ],
+        [ 1.9535925 ,  1.25      ],
+        [ 1.9460925 ,  1.75      ],
+        [ 1.89290968,  1.89290968],
+        [ 2.25      ,  2.25      ]])
+
+    waypoint_minTime = [[0, 0, 0], [1.3914213562373094, 0.8795786437626905, 0], [2.25, 2.25, 0]]
     
     #waypoint = waypoint_minTime#waypoint_maxSafety
-    waypoint = np.array([[0, 0, 0], [2, 0, np.pi/2], [2, 2, np.pi]])
-    waypoint = waypoint[0:3]
+    #waypoint = np.array([[0, 0, 0], [2, 0, np.pi/2], [2, 2, np.pi]])
+    waypoint = waypoint_minTime
     #, [1, 1, np.pi], [0.3, 1, np.pi]])##, [1, 1, np.pi]])
 
     print("Waypoints are: ", waypoint)
@@ -247,7 +264,7 @@ if __name__ == "__main__":
     current_state = np.array([0.0,0.0,0.0])
 
     from datetime import datetime
-    fname = "test.txt"#datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p") + ".txt"
+    fname = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p") + ".txt"
     f = open("/root/rosws/src/rb5_ros/rb5_control/src/outputs/"+fname, "w+")
     print("Printing to file: ", fname)
     writeLines = []
