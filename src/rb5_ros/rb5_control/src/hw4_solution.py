@@ -105,9 +105,10 @@ def getCurrentPos(l, current_state):
             # TODO: Possible issue: the above "if" statement will be true for all
             try:
                 #print(i)
-                if i in [9]:
-                    continue
-                if i in []:# Include the ones which are in duplicates
+                # if i in [9]:
+                #     continue
+
+                if i in [9]:# Include the ones which are in duplicates
                     #print("Shoulodnt go here!!")
                     now = rospy.Time()
                     # wait for the transform ready from the map to the camera for 1 second.
@@ -116,20 +117,28 @@ def getCurrentPos(l, current_state):
                     time.sleep(0.005)
                     (trans, rot) = l.lookupTransform(camera_name, "marker_"+str(i), rospy.Time(0))# april tag returns april tag's position wr.t. robot
 
-                    (trans1, rot1) = l.lookupTransform("map", "marker_"+str(i)+"_1", now)#static transform
-                    (trans2, rot2) = l.lookupTransform("map", "marker_"+str(i)+"_2", now)#static transform
 
-                    dist1 = distance(trans1, current_state, trans)
-                    dist2 = distance(trans2, current_state, trans)
-                    #print("\n")
+                    trans_rots = [l.lookupTransform("map", "marker_"+str(i)+ "_" + str(j), now) for j in range(1,6)]
+                    dists = [distance(x[0],current_state,trans) for x in trans_rots]
+                    dist_arg_min = np.argmin(dists)
 
-                    #print(dist1, dist2)
-                    if dist1<=dist2:
-                        trans, rot = trans1, rot1
-                        print("Using 1st marker")
-                    else:
-                        trans, rot = trans2, rot2
-                        print("Using 2nd marker")
+                    # (trans1, rot1) = l.lookupTransform("map", "marker_"+str(i)+"_1", now)#static transform
+                    # (trans2, rot2) = l.lookupTransform("map", "marker_"+str(i)+"_2", now)#static transform
+
+                    # dist1 = distance(trans1, current_state, trans)
+                    # dist2 = distance(trans2, current_state, trans)
+                    # #print("\n")
+
+                    # #print(dist1, dist2)
+                    # if dist1<=dist2:
+                    #     trans, rot = trans1, rot1
+                    #     print("Using 1st marker")
+                    # else:
+                    #     trans, rot = trans2, rot2
+                    #     print("Using 2nd marker")
+
+                    print("Using " + str(dist_arg_min+1) +  "marker")
+                    trans,rot = trans_rots[dist_arg_min]
 
                     #trans, rot = trans1, rot1
 

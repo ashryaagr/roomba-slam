@@ -15,19 +15,19 @@
 
 
 
-  <node pkg="tf" type="static_transform_publisher" name="marker_8" args="0.0 -0.15 0 3.14 0 -1.57 map marker_8 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_9_1" args="0.0 -0.15 0 3.14 0 -1.57 map marker_9_1 100" />
   <node pkg="tf" type="static_transform_publisher" name="marker_5" args="-0.15 0 0 1.57 0 -1.57 map marker_5 100" />
   <node pkg="tf" type="static_transform_publisher" name="marker_2" args="-0.15 2.5 0 1.57 0 -1.57 map marker_2 100" />
-  <node pkg="tf" type="static_transform_publisher" name="marker_9" args=" 0 2.65 0 0 0 -1.57 map marker_9 100" />
-  <node pkg="tf" type="static_transform_publisher" name="marker_1" args="2.5 2.65 0 0 0 -1.57 map marker_1 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_9_2" args=" 0 2.65 0 0 0 -1.57 map marker_9_2 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_9_3" args="2.5 2.65 0 0 0 -1.57 map marker_9_3 100" />
   <node pkg="tf" type="static_transform_publisher" name="marker_4" args="2.65 2.5 0 -1.57 0 -1.57 map marker_4 100" />
-  <node pkg="tf" type="static_transform_publisher" name="marker_0" args="2.65 0 0 -1.57 0 -1.57 map marker_0 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_9_4" args="2.65 0 0 -1.57 0 -1.57 map marker_9_4 100" />
   <node pkg="tf" type="static_transform_publisher" name="marker_7" args="2.5 -0.15 0 3.14 0 -1.57 map marker_7 100" />
 
-  <!-- <node pkg="tf" type="static_transform_publisher" name="marker_2_2" args="1.13 1.225 0 -1.57 0 -1.57 map marker_2_2 100" />
-  <node pkg="tf" type="static_transform_publisher" name="marker_1_2" args="1.22 1.36 0 3.14 0 -1.57 map marker_1_2 100" />
-  <node pkg="tf" type="static_transform_publisher" name="marker_0_2" args="1.43 1.18 0 1.57 0 -1.57 map marker_0_2 100" />
-  <node pkg="tf" type="static_transform_publisher" name="marker_3" args="1.28 1.04 0 0 0 -1.57 map marker_3 100" /> -->
+  <node pkg="tf" type="static_transform_publisher" name="marker_8" args="1.021 1.25 0 -1.57 0 -1.57 map marker_8 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_1" args="1.25 1.479 0 3.14 0 -1.57 map marker_1 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_0" args="1.479 1.25 0 1.57 0 -1.57 map marker_0 100" />
+  <node pkg="tf" type="static_transform_publisher" name="marker_3" args="1.25 1.021 0 0 0 -1.57 map marker_3 100" />
 
 
 
