@@ -9,8 +9,6 @@ import math
 import tf
 import tf2_ros
 from tf.transformations import quaternion_matrix
-#from VisibilityRoadMap.visibility_road_map import VisibilityRoadMap, ObstaclePolygon
-#from VoronoiRoadMap.voronoi_road_map import VoronoiRoadMapPlanner
 
 """
 The class of the pid controller.
@@ -105,8 +103,6 @@ def getCurrentPos(l, current_state):
             # TODO: Possible issue: the above "if" statement will be true for all
             try:
                 print(i)
-                if i in [8]:
-                    continue
 
                 if i in [9]:# Include the ones which are in duplicates
                     #print("Shoulodnt go here!!")
@@ -218,43 +214,7 @@ if __name__ == "__main__":
     trans_rots = [listener.lookupTransform("map", "marker_9_" + str(j), now) for j in range(1,6)]
 
 
-    obstacles = [] #ObstaclePolygon([], [])]
-
-    #minTime = VisibilityRoadMap()
-    #maxSafety = VoronoiRoadMapPlanner()
-    
-    #waypoint_minTime = giveWaypoints(minTime.planning(0, 0, 1, 0, obstacles))
-    #waypoint_maxSafety = giveWaypoints(maxSafety.planning(0, 0, 1, 1, obstacles))
-    
-    # waypoint =  np.array(
-    #                 [[0.0,0.0,0.0], 
-    #                  [1.0,0.0,np.pi/2],
-    #                  [1.0,1.0,np.pi],
-    #                  [0.0,1.0,-np.pi/2], 
-
-    # waypoint_maxSafety = np.array(
-    #     [[0, 0, 0],
-    #     [ 0.25      ,  0.25      , 0],
-    #     [ 0.75      ,  0.44017165, 0],
-    #     [ 0.53557388,  0.53557388, 0],
-    #     [ 0.75      ,  0.44017165, 0],
-    #     [ 1.1355    ,  0.43325833, 0],
-    #     [ 1.25      ,  0.40881341, 0],
-    #     [ 1.75      ,  0.51555978, 0],
-    #     [ 1.89290968,  0.60709032, 0],
-    #     [ 1.9460925 ,  0.75      , 0],
-    #     [ 1.9535925 ,  1.25      , 0],
-    #     [ 1.9460925 ,  1.75      , 0],
-    #     [ 1.89290968,  1.89290968, 0],
-    #     [ 2      ,  2      , 0]])
-
-    waypoint_maxSafety = np.array(
-        [[0, 0, 0],
-        [ 0.25      ,  0.25      , 0],
-        [ 0.75      ,  0.44017165, 0],
-        [ 1.9460925 ,  0.75      , 0],
-        [ 1.89290968,  1.89290968, 0],
-        [ 2      ,  2      , 0]])
+    waypoint_maxSafety = np.array([[0, 0], [0.17500000000000138, 0.1666666666666682], [0.3250000000000013, 0.31944444444444575], [0.4750000000000012, 0.47083333333333466], [0.775000000000001, 0.4589376601195556], [1.0354999999999999, 0.4350516652433818], [1.3750000000000007, 0.4397698548249359], [1.6750000000000005, 0.5102224594363791], [1.8913215075942245, 0.6110840990061878], [1.9487174999999999, 0.9250000000000009], [1.9492646428571427, 1.1289999999999998], [1.9494075, 1.329], [1.9382889285714282, 1.6750000000000005], [1.8892231538633153, 1.891608276939094], [2, 2]])
 
     waypoint_minTime = np.array([[0, 0, 0], [1.3914213562373094, 0.8795786437626905, 0], [2.25, 2.25, 0]])
     
