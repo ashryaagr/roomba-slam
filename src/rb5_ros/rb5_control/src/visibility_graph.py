@@ -18,8 +18,8 @@ class VisibilityAlgorithm:
         self.edge_selection(obstacles)
 
         # Run dijkstra algorithm on the tree
-        order_nodes = find_path(self.graph, 0, 1).nodes
-        return [self.nodes[i] for i in order_nodes]
+        order_nodes = find_path(self.graph, 0, 1)
+        return [self.nodes[i] for i in order_nodes.nodes]
 
     def get_visibility_graph(self, start, goal, obstacles):
         # add start and goal as nodes
@@ -65,7 +65,7 @@ class VisibilityAlgorithm:
                     continue
                 
                 for obstacle in obstacles:
-                    if not self.is_edge_intersecting(target_node, node, obstacle):
+                    if not self.is_edge_non_intersecting(target_node, node, obstacle):
                         break
                 else:
                     self.graph.add_edge(i, node_id, self.cost(i, node_id))
@@ -75,7 +75,7 @@ class VisibilityAlgorithm:
         p2 = self.nodes[j]
         return math.sqrt((p2[0]-p1[0])**2+(p2[1]-p2[0])**2)
 
-    def is_edge_intersecting(target_node, node, obstacle):
+    def is_edge_non_intersecting(self, target_node, node, obstacle):
 
         for i in range(len(obstacle) - 1):
 
@@ -129,7 +129,26 @@ if __name__ == '__main__':
 
     va = VisibilityAlgorithm(0.2)
     
-    obstacle = np.array([[1.021, 1.021, 1.25, 1.25], [1.021, 1.479, 1.479, 1.021]]).T
-    obstacles = [obstacle]
-    a = va.plan([0, 0], [2, 2], obstacles)
+    obstacle = np.array([[1.021, 1.021, 1.25, 1.25, 1.021], [1.021, 1.479, 1.479, 1.021, 1.021]]).T
+    obstacles = [obstacle[[0, 1, 2, 3]]]
+    a = va.plan([0, 0], [2.25, 2.25], obstacles)
     print(a)
+    # b = np.array(a).T
+
+    # plt.plot(obstacle.T[0], obstacle.T[1], 'bo-')
+    # # plt.plot(b[0], b[1], 'go-')
+    # plt.text(0, 0.1, s="start")
+    # plt.text(2.25, 2.3, s="goal")
+    # print(va.nodes)
+    # nodes = [(0, 0), (2.25, 2.25), [0.8795786437626905, 0.8795786437626905], [0.8795786437626905, 1.6204213562373095], [1.3914213562373094, 1.6204213562373095], [1.3914213562373094, 0.8795786437626905]]
+    # for node in nodes:
+    #     for target_node in nodes:
+    #         if node==target_node: continue
+    #         x = [node[0], target_node[0]]
+    #         y = [node[1], target_node[1]]
+    #         if va.is_edge_non_intersecting(node, target_node, obstacle):
+    #             plt.plot(x, y, 'ro-')
+    #         else:
+    #             plt.plot(x, y, 'ro:')
+
+    # plt.show()

@@ -10,6 +10,8 @@ import tf
 import tf2_ros
 from tf.transformations import quaternion_matrix
 
+# Please see visibility_graph.py and max_safety.py files for the visibility graph and voronoi implementation.
+
 """
 The class of the pid controller.
 """
@@ -213,7 +215,7 @@ if __name__ == "__main__":
     now = rospy.Time()
     trans_rots = [listener.lookupTransform("map", "marker_9_" + str(j), now) for j in range(1,6)]
 
-
+    # Please see visibility_graph.py and max_safety.py files for the visibility graph and voronoi implementation.
     waypoint_maxSafety = np.array([[0, 0], [0.17500000000000138, 0.1666666666666682], [0.3250000000000013, 0.31944444444444575], [0.4750000000000012, 0.47083333333333466], [0.775000000000001, 0.4589376601195556], [1.0354999999999999, 0.4350516652433818], [1.3750000000000007, 0.4397698548249359], [1.6750000000000005, 0.5102224594363791], [1.8913215075942245, 0.6110840990061878], [1.9487174999999999, 0.9250000000000009], [1.9492646428571427, 1.1289999999999998], [1.9494075, 1.329], [1.9382889285714282, 1.6750000000000005], [1.8892231538633153, 1.891608276939094], [2, 2]])
 
     waypoint_minTime = np.array([[0, 0, 0], [1.3914213562373094, 0.8795786437626905, 0], [2.25, 2.25, 0]])
