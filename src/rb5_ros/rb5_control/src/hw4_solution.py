@@ -105,8 +105,8 @@ def getCurrentPos(l, current_state):
             # TODO: Possible issue: the above "if" statement will be true for all
             try:
                 print(i)
-                # if i in [9]:
-                #     continue
+                if i in [8]:
+                    continue
 
                 if i in [9]:# Include the ones which are in duplicates
                     #print("Shoulodnt go here!!")
@@ -232,33 +232,41 @@ if __name__ == "__main__":
     #                  [1.0,1.0,np.pi],
     #                  [0.0,1.0,-np.pi/2], 
 
-    waypoint_maxSafety = np.array(
-        [[0, 0],
-        [ 0.25      ,  0.25      ],
-        [ 0.75      ,  0.44017165],
-        [ 0.53557388,  0.53557388],
-        [ 0.75      ,  0.44017165],
-        [ 1.1355    ,  0.43325833],
-        [ 1.25      ,  0.40881341],
-        [ 1.75      ,  0.51555978],
-        [ 1.89290968,  0.60709032],
-        [ 1.9460925 ,  0.75      ],
-        [ 1.9535925 ,  1.25      ],
-        [ 1.9460925 ,  1.75      ],
-        [ 1.89290968,  1.89290968],
-        [ 2.25      ,  2.25      ]])
+    # waypoint_maxSafety = np.array(
+    #     [[0, 0, 0],
+    #     [ 0.25      ,  0.25      , 0],
+    #     [ 0.75      ,  0.44017165, 0],
+    #     [ 0.53557388,  0.53557388, 0],
+    #     [ 0.75      ,  0.44017165, 0],
+    #     [ 1.1355    ,  0.43325833, 0],
+    #     [ 1.25      ,  0.40881341, 0],
+    #     [ 1.75      ,  0.51555978, 0],
+    #     [ 1.89290968,  0.60709032, 0],
+    #     [ 1.9460925 ,  0.75      , 0],
+    #     [ 1.9535925 ,  1.25      , 0],
+    #     [ 1.9460925 ,  1.75      , 0],
+    #     [ 1.89290968,  1.89290968, 0],
+    #     [ 2      ,  2      , 0]])
 
-    waypoint_minTime = [[0, 0, 0], [1.3914213562373094, 0.8795786437626905, 0], [2.25, 2.25, 0]]
+    waypoint_maxSafety = np.array(
+        [[0, 0, 0],
+        [ 0.25      ,  0.25      , 0],
+        [ 0.75      ,  0.44017165, 0],
+        [ 1.9460925 ,  0.75      , 0],
+        [ 1.89290968,  1.89290968, 0],
+        [ 2      ,  2      , 0]])
+
+    waypoint_minTime = np.array([[0, 0, 0], [1.3914213562373094, 0.8795786437626905, 0], [2.25, 2.25, 0]])
     
     #waypoint = waypoint_minTime#waypoint_maxSafety
     #waypoint = np.array([[0, 0, 0], [2, 0, np.pi/2], [2, 2, np.pi]])
-    waypoint = waypoint_minTime
+    waypoint = waypoint_maxSafety
     #, [1, 1, np.pi], [0.3, 1, np.pi]])##, [1, 1, np.pi]])
 
     print("Waypoints are: ", waypoint)
 
     # init pid controller
-    pid = PIDcontroller(0.03,0.002,0.005)
+    pid = PIDcontroller(0.035,0.003,0.005)
 
     # init current state
     current_state = np.array([0.0,0.0,0.0])
@@ -294,7 +302,7 @@ if __name__ == "__main__":
 
         writeLines.append(",".join(map(str, current_state))+"\n")
 
-        while(np.linalg.norm(pid.getError(current_state, wp)) > 0.15): # check the error between current state and current way point
+        while(np.linalg.norm(pid.getError(current_state, wp)) > 0.2): # check the error between current state and current way point
             # calculate the current twist
             update_value = pid.update(current_state)
             # publish the twist
