@@ -82,6 +82,7 @@ class PIDcontroller:
 
         return result
 
+
 def kalman_robot_update(l, kf):
 
     foundTag = False
@@ -109,20 +110,12 @@ def kalman_robot_update(l, kf):
             #br.sendTransform((trans[0], trans[1], 0), tf.transformations.quaternion_from_euler(0,0,angle), rospy.Time.now(), "base_link", "map")
             zt = np.array([trans[0], trans[1], angle])
             tag = i
-            #print(zt)
-            if tag not in kf.landmark_order:
-                # br.sendTransform((kf.s[0], kf.s[1], 0), tf.transformations.quaternion_from_euler(0,0,kf.s[2]), rospy.Time.now(), "world", "robot")
-                # now = rospy.Time()
-                # # wait for the transform ready from the map to the camera for 1 second.
-                # l.waitForTransform("world", camera_name, now, rospy.Duration(0.1))
-                # # extract the transform camera pose in the map coordinate.
-                # (trans, rot) = l.lookupTransform("world", camera_name, now)
-                # # convert the rotate matrix to theta angle in 2d
-                # matrix = quaternion_matrix(rot)
-                # angle = math.atan2(matrix[1][2], matrix[0][2])
-                # # this is not required, I just used this for debug in RVIZ
-                # #br.sendTransform((trans[0], trans[1], 0), tf.transformations.quaternion_from_euler(0,0,angle), rospy.Time.now(), "base_link", "map")
-                # zt_world = np.array([trans[0], trans[1], angle])
+            if tag not in kf.number_of_landmarks:
+                # if we see 9_1
+
+                kf.number_of_landmarks[tag] = 1
+                tag_name = str(tag)+"_1"
+                
                 theta = kf.s[2]
                 rot_matrix = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
                 zt_world = kf.s[:2]+np.dot(rot_matrix, zt[:2])
@@ -133,12 +126,50 @@ def kalman_robot_update(l, kf):
                     theta_p += 2* np.pi
                 zt_world = np.array([zt_world[0], zt_world[1], theta_p])
 
-                kf.addLandmark(zt_world, tag=tag)
-                print("Here is the position of landmark in world!!!!")
-                print(zt_world)
+                kf.addLandmark(zt_world, tag=tag_name)
+
+            else:
+                # when we see either 9_2 for the first time or if we have already seen 9_2, but want to use it for kalman update
+                time.sleep(0.005)
+
+                (trans, rot) = l.lookupTransform(camera_name, "marker_"+str(i), rospy.Time(0))# april tag returns april tag's position wr.t. robot
+                matrix = quaternion_matrix(rot)
+                angle = math.atan2(matrix[1][2], matrix[0][2])
+                zt = np.array([trans[0], trans[1], angle])
+
+                ## Convert the observed landmark's position to world corrdinates
+                theta = kf.s[2]
+                rot_matrix = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
+                trans_world = kf.s[:2]+np.dot(rot_matrix, trans[:2])
+                # trans_world is the current landmark we're seeing - its estimated position in world frame
+
+                # Now compute distanve between trans_world and all previous landmarks with same tag
+                num_of_landmarks_tag_i = kf.number_of_landmarks[tag]
+                landmark_distances = []
+                for j in range(1, num_of_landmarks_tag_i+1):
+                    index_i_j = kf.landmark_order.index(str(i)+"_"+str(j))
+                    landmark_distances.append(np.linalg.norm(kf.s[3*index_i_j:3*index_i_j+2]-trans_world))
+                index_i_j_min = np.argmin(landmark_distances)
+
+                if landmark_distances[index_i_j_min]<0.4:# Hyperparameter for minimum distance for being considered different landmark
+                    # already seen 9_2, but want to use it for kalman update
+                    tag_name = str(tag)+"_"+str(index_i_j_min+1)
+                else:
+                    # tag with a same id is there,  but this one is a different april tag
+                    # when we see either 9_2 for the first time 
+                    kf.number_of_landmarks[tag] += 1
+                    tag_name = str(tag)+"_"+str(kf.number_of_landmarks[tag])
+
+                    theta_p = theta+angle
+                    if theta_p>np.pi:
+                        theta_p -= 2*np.pi
+                    elif theta < -np.pi:
+                        theta_p += 2* np.pi
+                    zt_world = np.array([trans_world[0], trans_world[1], theta_p])
+                    kf.addLandmark(zt_world, tag=tag_name)
             #kf.update(zt, tag=tag)
             zts.append(zt)
-            tags.append(tag)
+            tags.append(tag_name)
             foundTag = True
             #break# Remove this break if we want to update for all tags we see.
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException, tf2_ros.TransformException):

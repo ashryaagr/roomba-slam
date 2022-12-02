@@ -7,6 +7,7 @@ class KalmanFilter:
         self.s = np.array([x, y, theta])
         
         self.landmark_order = np.array([])
+        self.number_of_landmarks = {}
         self.landmark_count = 0
 
         # Initially we assume we know with certainity that the position of the landmark is correct.
