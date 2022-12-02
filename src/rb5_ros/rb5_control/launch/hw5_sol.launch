@@ -1,0 +1,5 @@
+<launch>
+  <!-- <include file="$(find rb5_control)/launch/mbot_bringup.launch" /> -->
+  <!-- <include file="$(find april_detection)/launch/april_detection_hw3.launch" /> -->
+  <node pkg="rb5_control" type="hw3_solution.py" name="hw3_sol_node" output="screen" /> 
+</launch>
