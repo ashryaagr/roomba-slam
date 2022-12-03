@@ -11,6 +11,7 @@ import tf2_ros
 from tf.transformations import quaternion_matrix
 from kalman_filter import KalmanFilter
 from ConvexHull import state_to_convexhull, outsideBoundary, min_max_y
+from VisibilityRoadMap.visibility_road_map import VisibilityRoadMap
 
 # from april_detection.msg import AprilTagDetectionArray
 
@@ -84,7 +85,8 @@ class PIDcontroller:
         return result
 
 
-def kalman_robot_update(l, kf):
+def kalman_robot_update(l, kf, updateLandmarkState=True):
+    landmark_positions = kf.s[3:]
 
     foundTag = False
     zt = None
@@ -111,7 +113,7 @@ def kalman_robot_update(l, kf):
             #br.sendTransform((trans[0], trans[1], 0), tf.transformations.quaternion_from_euler(0,0,angle), rospy.Time.now(), "base_link", "map")
             zt = np.array([trans[0], trans[1], angle])
             tag = i
-            if tag not in kf.number_of_landmarks:
+            if (tag not in kf.number_of_landmarks) and updateLandmarkState:
                 # if we see 9_1
 
                 kf.number_of_landmarks[tag] = 1
@@ -156,7 +158,7 @@ def kalman_robot_update(l, kf):
                 if landmark_distances[index_i_j_min]<0.2:# Hyperparameter for minimum distance for being considered different landmark
                     # already seen 9_2, but want to use it for kalman update
                     tag_name = str(tag)+"_"+str(index_i_j_min+1)
-                else:
+                elif updateLandmarkState:
                     # tag with a same id is there,  but this one is a different april tag
                     # when we see either 9_2 for the first time 
                     kf.number_of_landmarks[tag] += 1
@@ -181,6 +183,8 @@ def kalman_robot_update(l, kf):
     if foundTag:
         zts = np.array(zts)
         kf.updates(zts, tags=tags)
+        if not updateLandmarkState:
+            kf.s[3:] = landmark_positions
 
     #l.clear()
 
@@ -324,15 +328,40 @@ if __name__ == "__main__":
 
     ##### Waypoints are now computed offline using the SLAM map we obtained
     margin = 0.2
+    obstacle_size=0.2
     width = 0.15# Width of the robot
+    tolerance = 0.05
 
     convex_hull = state_to_convexhull(kf.s)
     left_bottom = min(convex_hull, key=lambda x: (x[0], x[1]))
     left_bottom_margin = [left_bottom[0]+margin, left_bottom[1]+margin]
-    waypoints = [left_bottom_margin.append(kf.s[2])]
-    curr = waypoints[-1]
 
-    while not outsideBoundary([curr[0]+margin, curr_y], convex_hull):# Might have to change the True condition
+    ## Compute the path needed to go from the current state to the left-bottom part of the graph.
+    va = VisibilityAlgorithm(0.1)
+    curr_x,curr_y=kf.s[:2]
+    va_points = va.planning(curr_x, curr_y, left_bottom_margin[0], left_bottom_margin[1], obstacles)
+    waypoints =  [[x,y,0] for x,y in zip(*va_points)]
+    curr = waypoints[-1]# waypoint under consideration
+
+    def findObstacleLandmarks():
+        obstacles = []
+        #obstacle_centers = []
+        for i in range(len(kf.landmark_order)):
+            (x_obs, y_obs) = kf.s[3*[i+1]:3*[i+1]+2]
+            miny, maxy = min_max_y(x_obs, convex_hull)
+            if (y_obs!=miny) and (y_obs!=maxy):
+                #obstacle_centers.append([x_obs, y_obs])
+                obstacle = np.array([
+                [x_obs-obstacle_size/2, x_obs+obstacle_size/2, x_obs+obstacle_size/2, x_obs-obstacle_size/2], 
+                [y_obs-obstacle_size/2, y_obs-obstacle_size/2, y_obs+obstacle_size/2, y_obs+obstacle_size/2]])
+                obstacles.append(obstacle)
+
+        return obstacles
+    
+    # Need to create a array of obstacles to pass to the visibility graph algorithm
+    obstacles = findObstacleLandmarks()
+
+    while True:
         
         curr_x, curr_y = curr[:2]
         ymin, ymax = min_max_y(curr_x, convex_hull)
@@ -341,21 +370,33 @@ if __name__ == "__main__":
         top_wp = ymax-margin
         bottom_wp = ymin+margin
 
-        if top_wp>curr_y:
+        add_waypoints = False
+        if (top_wp>curr_y) and abs(top_wp-curr_y)>=tolerance:
             # move upwards
-            pass
-        if bottom_wp<curr_y:
+            goal_x,goal_y = curr_x,top_wp
+            add_waypoints = True
+        elif (bottom_wp<curr_y) and abs(curr_y-bottom_wp)>=tolerance:
             #move downwards
+            goal_x,goal_y=curr_x,bottom_wp
+            add_waypoints = True
+        else:
+            # This case is when we dont have sufficient up or down space to move
             pass
 
+        if add_waypoints:
+            va = VisibilityAlgorithm(0.1)
+            va_points = va.planning(curr_x, curr_y, goal_x, goal_y, obstacles)
+            waypoints = waypoints + [[x,y,0] for x,y in zip(*va_points)]
+        
+        waypoints.append([curr_x+width, curr_y, 0])
+        curr = waypoints[-1]
 
-        # Need to create a array of obstacles to pass to the visibility graph algorithm
-
+        if outsideBoundary([curr[0]+margin, curr_y], convex_hull):
+            break
         # We also need to use shortest path algorithm to  
         # find the points between the current point and 
         # the top or bottom point we want to go to
 
-    
     for wp in waypoint:
         print("move to way point", wp)
         # set wp as the target point
@@ -369,11 +410,17 @@ if __name__ == "__main__":
         time.sleep(0.05)
         # update the current state
         
-        # kf.predict(update_value)
-        # kalman_robot_update(listener, kf)
-        # current_state = kf.getCurrentPos()
-        # writeLines.append(",".join(map(str, kf.s))+"\n")
-
+        kf.predict(update_value)
+        kalman_robot_update(listener, kf, updateLandmarkState=False)
+        #foundTag, tag, zt = get_tag_position(listener, kf)
+        #if foundTag:
+        #    kf.update(zt, tag)
+        current_state = kf.getCurrentPos()
+        writeLines.append(",".join(map(str, kf.s))+"\n")
+        #current_state += update_value
+        #found_state, estimated_state = getCurrentPos(listener)
+        # if found_state: # if the tag is detected, we can use it to update current state.
+        #     current_state = estimated_state
 
         while(np.linalg.norm(pid.getError(current_state, wp)) > 0.05): # check the error between current state and current way point
             # calculate the current twist
@@ -384,15 +431,15 @@ if __name__ == "__main__":
             time.sleep(0.05)
             # update the current state
             #print(kf.s)
-            # kf.predict(update_value)
+            kf.predict(update_value)
             #t1 = rospy.get_time()
-            # kalman_robot_update(listener, kf)
+            kalman_robot_update(listener, kf, updateLandmarkState=False)
             #print('The update function took ', rospy.get_time() - t1,  ' s')
             #if foundTag:
             #    kf.update(zt, tag=tag)
-            # current_state = kf.getCurrentPos()
-            # print(current_state)
-            # writeLines.append(",".join(map(str, kf.s))+"\n")
+            current_state = kf.getCurrentPos()
+            print(current_state)
+            writeLines.append(",".join(map(str, kf.s))+"\n")
             # current_state += update_value
             # found_state, estimated_state = getCurrentPos(listener)
             # if found_state:
