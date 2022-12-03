@@ -10,6 +10,7 @@ import tf
 import tf2_ros
 from tf.transformations import quaternion_matrix
 from kalman_filter import KalmanFilter
+from ConvexHull import state_to_convexhull, outsideBoundary, min_max_y
 
 # from april_detection.msg import AprilTagDetectionArray
 
@@ -317,8 +318,87 @@ if __name__ == "__main__":
             # found_state, estimated_state = getCurrentPos(listener)
             # if found_state:
             #     current_state = estimated_state
-    print("traversed all the waypoints")
+
     
+    print("SLAM Over!!!!!")
+
+    ##### Waypoints are now computed offline using the SLAM map we obtained
+    margin = 0.2
+    width = 0.15# Width of the robot
+
+    convex_hull = state_to_convexhull(kf.s)
+    left_bottom = min(convex_hull, key=lambda x: (x[0], x[1]))
+    left_bottom_margin = [left_bottom[0]+margin, left_bottom[1]+margin]
+    waypoints = [left_bottom_margin.append(kf.s[2])]
+    curr = waypoints[-1]
+
+    while not outsideBoundary([curr[0]+margin, curr_y], convex_hull):# Might have to change the True condition
+        
+        curr_x, curr_y = curr[:2]
+        ymin, ymax = min_max_y(curr_x, convex_hull)
+        #ylength = ymax-ymin
+
+        top_wp = ymax-margin
+        bottom_wp = ymin+margin
+
+        if top_wp>curr_y:
+            # move upwards
+            pass
+        if bottom_wp<curr_y:
+            #move downwards
+            pass
+
+
+        # Need to create a array of obstacles to pass to the visibility graph algorithm
+
+        # We also need to use shortest path algorithm to  
+        # find the points between the current point and 
+        # the top or bottom point we want to go to
+
+    
+    for wp in waypoint:
+        print("move to way point", wp)
+        # set wp as the target point
+        pid.setTarget(wp)
+
+        # calculate the current twist
+        update_value = pid.update(current_state)
+        # publish the twist
+        pub_twist.publish(genTwistMsg(coord(update_value, current_state)))
+        #print(coord(update_value, current_state))
+        time.sleep(0.05)
+        # update the current state
+        
+        # kf.predict(update_value)
+        # kalman_robot_update(listener, kf)
+        # current_state = kf.getCurrentPos()
+        # writeLines.append(",".join(map(str, kf.s))+"\n")
+
+
+        while(np.linalg.norm(pid.getError(current_state, wp)) > 0.05): # check the error between current state and current way point
+            # calculate the current twist
+            update_value = pid.update(current_state)
+            # publish the twist
+            pub_twist.publish(genTwistMsg(coord(update_value, current_state)))
+            #print(coord(update_value, current_state))
+            time.sleep(0.05)
+            # update the current state
+            #print(kf.s)
+            # kf.predict(update_value)
+            #t1 = rospy.get_time()
+            # kalman_robot_update(listener, kf)
+            #print('The update function took ', rospy.get_time() - t1,  ' s')
+            #if foundTag:
+            #    kf.update(zt, tag=tag)
+            # current_state = kf.getCurrentPos()
+            # print(current_state)
+            # writeLines.append(",".join(map(str, kf.s))+"\n")
+            # current_state += update_value
+            # found_state, estimated_state = getCurrentPos(listener)
+            # if found_state:
+            #     current_state = estimated_state
+
+
     writeLines += [
         "\n\nFinal state vector:\n" + str(kf.s)+"\n\n",
         "Landmark order:\n" + str(kf.landmark_order) + "\n\n",
