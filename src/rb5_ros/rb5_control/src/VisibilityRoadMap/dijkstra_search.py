@@ -65,14 +65,14 @@ class DijkstraSearch:
             current_node = open_set[current_id]
 
             # show graph
-            if self.show_animation and len(
-                    close_set.keys()) % 2 == 0:  # pragma: no cover
-                plt.plot(current_node.x, current_node.y, "xg")
-                # for stopping simulation with the esc key.
-                plt.gcf().canvas.mpl_connect(
-                    'key_release_event',
-                    lambda event: [exit(0) if event.key == 'escape' else None])
-                plt.pause(0.1)
+            # if self.show_animation and len(
+            #         close_set.keys()) % 2 == 0:  # pragma: no cover
+            #     plt.plot(current_node.x, current_node.y, "xg")
+            #     # for stopping simulation with the esc key.
+            #     plt.gcf().canvas.mpl_connect(
+            #         'key_release_event',
+            #         lambda event: [exit(0) if event.key == 'escape' else None])
+            #     plt.pause(0.1)
 
             # Remove the item from the open set
             del open_set[current_id]

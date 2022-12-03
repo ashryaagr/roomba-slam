@@ -228,7 +228,7 @@ def state_to_convexhull(state):
 
 def outsideBoundary(pos, hull):
     x, y = pos[:2]
-    ymin, ymax - min_max_y(x, hull)
+    ymin, ymax = min_max_y(x, hull)
     if (ymin is None) or (ymax is None):# If the x does not have any corrsponding y in the polygon
         return True
     elif (y<ymin) or (y>ymax):

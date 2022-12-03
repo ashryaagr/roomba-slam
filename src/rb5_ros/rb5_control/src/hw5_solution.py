@@ -241,7 +241,7 @@ if __name__ == "__main__":
     side_length = 1
 
     waypoint_default = np.array([[0.0,0.0,0.0], 
-                         [2.0,0.0,0.0]])#,
+                         [1.0,0.0,0.0]])#,
     
     waypoint_square = np.array(
                     [[0.0,0.0,0.0], 
@@ -332,16 +332,9 @@ if __name__ == "__main__":
     width = 0.15# Width of the robot
     tolerance = 0.05
 
-    convex_hull = state_to_convexhull(kf.s)
+    convex_hull = [[0, 0], [1, 0], [1, 1], [0, 1]]#state_to_convexhull(kf.s)
     left_bottom = min(convex_hull, key=lambda x: (x[0], x[1]))
     left_bottom_margin = [left_bottom[0]+margin, left_bottom[1]+margin]
-
-    ## Compute the path needed to go from the current state to the left-bottom part of the graph.
-    va = VisibilityAlgorithm(0.1)
-    curr_x,curr_y=kf.s[:2]
-    va_points = va.planning(curr_x, curr_y, left_bottom_margin[0], left_bottom_margin[1], obstacles)
-    waypoints =  [[x,y,0] for x,y in zip(*va_points)]
-    curr = waypoints[-1]# waypoint under consideration
 
     def findObstacleLandmarks():
         obstacles = []
@@ -355,11 +348,17 @@ if __name__ == "__main__":
                 [x_obs-obstacle_size/2, x_obs+obstacle_size/2, x_obs+obstacle_size/2, x_obs-obstacle_size/2], 
                 [y_obs-obstacle_size/2, y_obs-obstacle_size/2, y_obs+obstacle_size/2, y_obs+obstacle_size/2]])
                 obstacles.append(obstacle)
-
         return obstacles
     
     # Need to create a array of obstacles to pass to the visibility graph algorithm
     obstacles = findObstacleLandmarks()
+
+    ## Compute the path needed to go from the current state to the left-bottom part of the graph.
+    va = VisibilityRoadMap(0.1)
+    curr_x,curr_y=kf.s[:2]
+    va_points = va.planning(curr_x, curr_y, left_bottom_margin[0], left_bottom_margin[1], obstacles)
+    waypoints =  [[x,y,0] for x,y in zip(*va_points)][:-1]
+    curr = left_bottom_margin# waypoint under consideration
 
     while True:
         
@@ -384,20 +383,23 @@ if __name__ == "__main__":
             pass
 
         if add_waypoints:
-            va = VisibilityAlgorithm(0.1)
+            va = VisibilityRoadMap(0.1)
             va_points = va.planning(curr_x, curr_y, goal_x, goal_y, obstacles)
             waypoints = waypoints + [[x,y,0] for x,y in zip(*va_points)]
         
-        waypoints.append([curr_x+width, curr_y, 0])
-        curr = waypoints[-1]
-
-        if outsideBoundary([curr[0]+margin, curr_y], convex_hull):
+        if outsideBoundary([goal_x+width, goal_y], convex_hull):
             break
+
+        #waypoints.append([goal_x+width, goal_y, 0])
+        curr = [goal_x+width, goal_y, 0]
+
         # We also need to use shortest path algorithm to  
         # find the points between the current point and 
         # the top or bottom point we want to go to
 
-    for wp in waypoint:
+    print("The waypoints for coverage path are: ", waypoints)
+
+    for wp in waypoints:
         print("move to way point", wp)
         # set wp as the target point
         pid.setTarget(wp)
