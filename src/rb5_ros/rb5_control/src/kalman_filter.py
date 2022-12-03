@@ -48,7 +48,7 @@ class KalmanFilter:
         return np.matmul(H_low, F_xj)
     
     def addLandmark(self, z, tag):
-        print("Added landmark!!!!!!!")
+        print("Added landmark!!, :", tag)
         self.s = np.append(self.s, z)
         
         self.landmark_count += 1

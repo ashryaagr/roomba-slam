@@ -147,11 +147,12 @@ def kalman_robot_update(l, kf):
                 num_of_landmarks_tag_i = kf.number_of_landmarks[tag]
                 landmark_distances = []
                 for j in range(1, num_of_landmarks_tag_i+1):
-                    index_i_j = kf.landmark_order.index(str(i)+"_"+str(j))
-                    landmark_distances.append(np.linalg.norm(kf.s[3*index_i_j:3*index_i_j+2]-trans_world))
+                    #index_i_j = kf.landmark_order.index(str(i)+"_"+str(j))
+                    index_i_j = np.argwhere(np.isin(kf.landmark_order, str(i)+"_"+str(j)))[0][0]
+                    landmark_distances.append(np.linalg.norm(kf.s[3*(index_i_j+1):3*(index_i_j+1)+2]-trans_world))
                 index_i_j_min = np.argmin(landmark_distances)
 
-                if landmark_distances[index_i_j_min]<0.4:# Hyperparameter for minimum distance for being considered different landmark
+                if landmark_distances[index_i_j_min]<0.2:# Hyperparameter for minimum distance for being considered different landmark
                     # already seen 9_2, but want to use it for kalman update
                     tag_name = str(tag)+"_"+str(index_i_j_min+1)
                 else:
@@ -172,8 +173,8 @@ def kalman_robot_update(l, kf):
             tags.append(tag_name)
             foundTag = True
             #break# Remove this break if we want to update for all tags we see.
-        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException, tf2_ros.TransformException):
-            #print("meet error")
+        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException, tf2_ros.TransformException) as e:
+            #print("meet error: ", e)
             pass
     
     if foundTag:
@@ -235,7 +236,7 @@ if __name__ == "__main__":
     side_length = 1
 
     waypoint_default = np.array([[0.0,0.0,0.0], 
-                         [1.0,0.0,0.0]])#,
+                         [2.0,0.0,0.0]])#,
     
     waypoint_square = np.array(
                     [[0.0,0.0,0.0], 
@@ -245,7 +246,7 @@ if __name__ == "__main__":
                      [0.0,0.0,0.0]])
 
 
-    waypoint = waypoint_square
+    waypoint = waypoint_default
     
     waypoint[:, [0, 1]] = side_length*waypoint[:, [0, 1]]
     print("Waypoints are: ", waypoint)
@@ -259,7 +260,7 @@ if __name__ == "__main__":
     kf = KalmanFilter(0, 0, 0)
 
     from datetime import datetime
-    fname = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p") + ".txt"
+    fname = "test.txt"#datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p") + ".txt"
     f = open("/root/rosws/src/rb5_ros/rb5_control/src/outputs/"+fname, "w+")
     print("Printing to file: ", fname)
     writeLines = []
