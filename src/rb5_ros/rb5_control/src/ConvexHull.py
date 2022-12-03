@@ -206,9 +206,9 @@ def min_max_y(x, array):
         y = y_on_line(x, array[i], array[(i+1)%len(array)])
         if(y is None):
             continue
-        if(y < miny) or (miny is None):
+        if (miny is None) or (y < miny):
             miny = y
-        if(y > maxy) or (maxy is None):
+        if (maxy is None) or (y > maxy):
             maxy = y
     return [miny, maxy]
 
@@ -225,3 +225,19 @@ def state_to_convexhull(state):
     convex_hull = model(points)
     return convex_hull
     # convex_hull is a list of lists
+
+def outsideBoundary(pos, hull):
+    x, y = pos[:2]
+    ymin, ymax - min_max_y(x, hull)
+    if (ymin is None) or (ymax is None):# If the x does not have any corrsponding y in the polygon
+        return True
+    elif (y<ymin) or (y>ymax):
+        return True
+    else:
+        return False
+
+if __name__=='__main__':
+    state = np.array([-10, 0, 0,     0, 0, 0,   1, 1, 1,    0.5, 1.5, 0,   1, 0, 0,    0, 1, 0,     0.5, 0.5, 0])
+    hull = state_to_convexhull(state)
+    print(hull)
+    print(min_max_y(0, hull), min_max_y(0.5, hull), min_max_y(1, hull), min_max_y(1.5, hull))
