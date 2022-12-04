@@ -360,6 +360,8 @@ if __name__ == "__main__":
     waypoints =  [[x,y,0] for x,y in zip(*va_points)][:-1]
     curr = left_bottom_margin# waypoint under consideration
 
+    move_up=True
+
     while True:
         
         curr_x, curr_y = curr[:2]
@@ -370,17 +372,24 @@ if __name__ == "__main__":
         bottom_wp = ymin+margin
 
         add_waypoints = False
-        if (top_wp>curr_y) and abs(top_wp-curr_y)>=tolerance:
+        if move_up and (top_wp>curr_y) and abs(top_wp-curr_y)>=tolerance:
             # move upwards
+            #f abs(curr_y-bottom_wp)<margin:
+            #    curr_y=bottom_wp+margin
             goal_x,goal_y = curr_x,top_wp
             add_waypoints = True
-        elif (bottom_wp<curr_y) and abs(curr_y-bottom_wp)>=tolerance:
+        elif (not move_up) and (bottom_wp<curr_y) and abs(curr_y-bottom_wp)>=tolerance:
             #move downwards
+            #if abs(top_wp-curr_y)<margin:
+            #    curr_y=top_wp-margin
             goal_x,goal_y=curr_x,bottom_wp
             add_waypoints = True
         else:
             # This case is when we dont have sufficient up or down space to move
+            goal_x,goal_y=curr_x,curr_y
             pass
+        
+        move_up = not move_up
 
         if add_waypoints:
             va = VisibilityRoadMap(0.1)
@@ -391,7 +400,11 @@ if __name__ == "__main__":
             break
 
         #waypoints.append([goal_x+width, goal_y, 0])
-        curr = [goal_x+width, goal_y, 0]
+        next_ymin, next_ymax = min_max_y(curr_x+width, convex_hull)
+        if move_up:
+            curr = [goal_x+width, next_ymin+margin, 0]
+        else:
+            curr = [goal_x+width, next_ymax-margin, 0]
 
         # We also need to use shortest path algorithm to  
         # find the points between the current point and 
