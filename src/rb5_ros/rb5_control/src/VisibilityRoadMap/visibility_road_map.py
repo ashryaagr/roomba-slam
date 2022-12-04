@@ -14,7 +14,7 @@ import pathlib
 sys.path.append(str(pathlib.Path(__file__).parent.parent))
 
 from VisibilityRoadMap.geometry import Geometry
-from dijkstra_search import DijkstraSearch
+from VisibilityRoadMap.dijkstra_search import DijkstraSearch
 
 show_animation = True
 

@@ -219,7 +219,7 @@ def state_to_convexhull(state):
     model = ConvexHull2D()
     points = []
     number_of_landmarks = (len(state)//3-1)
-    for i in range(1, number_of_landmarks):
+    for i in range(1, number_of_landmarks+1):
         points.append(state[3*i:3*i+2])
     points = np.array(points)
     convex_hull = model(points)
